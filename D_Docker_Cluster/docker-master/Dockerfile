@@ -1,4 +1,4 @@
-FROM msv/docker-hadoop-base
+FROM msv/docker-hadoop-base:1.0
 MAINTAINER Mikael Svahnberg "Mikael.Svahnberg@bth.se"
 
 RUN puppet apply --verbose \
