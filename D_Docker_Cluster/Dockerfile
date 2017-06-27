@@ -3,12 +3,12 @@ MAINTAINER Mikael Svahnberg "Mikael.Svahnberg@bth.se"
 
 # Basic
 # ----------
-RUN apt-get -y -q update
-RUN apt-get -y -q install wget git-core
+RUN apt-get -qq update
+RUN apt-get -qy install wget git-core
 
 # Puppet
 # ----------
-RUN apt-get -y -q install rubygems
+RUN apt-get -qy install rubygems
 RUN echo "gem: --no-ri --no-rdoc" > ~/.gemrc
 RUN gem install puppet
 
