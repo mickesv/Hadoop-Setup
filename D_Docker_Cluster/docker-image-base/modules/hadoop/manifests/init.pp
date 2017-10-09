@@ -23,18 +23,47 @@ class hadoop {
   $hadoop_ver = "2.8.1"
   $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
-  $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
 
+  include java
+    
+  group { "group-vagrant":
+    name => $user,
+    ensure => "present",
+  }
+  
+  user { "user-vagrant":
+    name => $user,
+    password => "hunter2",
+    ensure => "present",
+    groups => $user,
+    home => "/home/${user}",
+    managehome => true,
+    require => Group["group-vagrant"];
+  }    
+
+  # exec { "debugging":
+  #   command => "echo ${java::java_home} or ${java::default_java_home}",
+  #   path => $path,
+  #   loglevel => debug,
+  #   logoutput => true,      
+  #   require => [Class["java"], User["user-vagrant"]],
+  # }    
+  
   exec { "download_hadoop":
-    command => "wget -O /vagrant/hadoop.tar.gz http://www-eu.apache.org/dist/hadoop/common/hadoop-${hadoop_ver}/hadoop-${hadoop_ver}.tar.gz",
+    command => "wget -O /home/${user}/hadoop.tar.gz http://www-eu.apache.org/dist/hadoop/common/hadoop-${hadoop_ver}/hadoop-${hadoop_ver}.tar.gz",
     path => $path,
+<<<<<<< HEAD:D_Docker_Cluster/modules/hadoop/manifests/init.pp
     unless => ["ls /usr/local/ | grep hadoop-2.8.1", "test -f /vagrant/hadoop.tar.gz"],
     require => Package["openjdk-7-jdk"], 
+=======
+    unless => ["ls /usr/local/ | grep hadoop-2.8.0", "test -f /home/${user}/hadoop.tar.gz"],        
+    require => [Class["java"], User["user-vagrant"]],
+>>>>>>> edb8e31f5c9bb28ab4e7d97ff2d49a5f86dabe53:D_Docker_Cluster/docker-image-base/modules/hadoop/manifests/init.pp
   }
 
   exec { "unpack_hadoop" :
-    command => "tar -zxf /vagrant/hadoop.tar.gz -C /usr/local/",
+    command => "tar -zxf /home/${user}/hadoop.tar.gz -C /usr/local/",
     path => $path,
     creates => "${hadoop_home}-${hadoop_ver}",
     require => Exec["download_hadoop"],    
@@ -43,7 +72,7 @@ class hadoop {
   file {
     "${hadoop_dir}/etc/hadoop/core-site.xml":
       source => "puppet:///modules/hadoop/core-site.xml",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],    
@@ -52,7 +81,7 @@ class hadoop {
   file {
     "${hadoop_dir}/etc/hadoop/mapred-site.xml":
       source => "puppet:///modules/hadoop/mapred-site.xml",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],    
@@ -61,7 +90,7 @@ class hadoop {
   file {
     "${hadoop_dir}/etc/hadoop/hdfs-site.xml":
       source => "puppet:///modules/hadoop/hdfs-site.xml",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],  
@@ -70,16 +99,22 @@ class hadoop {
   file {
     "${hadoop_dir}/etc/hadoop/hadoop-env.sh":
       source => "puppet:///modules/hadoop/hadoop-env.sh",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],  
   }
 
+  file_line { "java-home":
+    path => "${hadoop_dir}/etc/hadoop/hadoop-env.sh",
+    line => "export JAVA_HOME=${java::default_java_home}",
+    require => File["${hadoop_dir}/etc/hadoop/hadoop-env.sh"],
+  }
+
   file {
     "${hadoop_dir}/etc/hadoop/yarn-env.sh":
       source => "puppet:///modules/hadoop/yarn-env.sh",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"], 
@@ -88,7 +123,7 @@ class hadoop {
   file {
     "${hadoop_dir}/etc/hadoop/yarn-site.xml":
       source => "puppet:///modules/hadoop/yarn-site.xml",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],
@@ -97,7 +132,7 @@ class hadoop {
   file {
     "/home/${user}/hadoop-common.sh":
       source => "puppet:///modules/hadoop/hadoop-common.sh",
-      mode => 755,
+      mode => "755",
       owner => $user,
       group => $user,
   }
@@ -109,13 +144,27 @@ class hadoop {
   }
 
   file {
-    "/home/${user}/hadoop-dfs-populate.sh":
+    "/hadoop-dfs-populate.sh":
       source => "puppet:///modules/hadoop/hadoop-dfs-populate.sh",
-      mode => 755,
+      mode => "755",
       owner => $user,
       group => $user,
   }
-  
+
+  file_line { "fix_comnmons":
+    ensure => present,
+    path => "/hadoop-dfs-populate.sh",
+    line => "source /home/${user}/hadoop-common.sh",
+    match => "^source",
+  }
+
+  # Fix all references to master so that they use the docker ip instead:
+  # file_line {"master-core-site":
+  #   ensure => present,
+  #   path => "${hadoop_dir}/etc/hadoop/core-site.xml",
+  #   line => "<value>hdfs://${::ipaddress}/</value>",
+  #   match => "<value>hdfs://master/</value>",
+  # }  
 }
 
 
@@ -131,7 +180,7 @@ class sshsetup {
       ensure => "directory",
       owner => "${user}",
       group => "${user}",
-      mode => 750,
+      mode => "750",
   }
 
 
@@ -139,7 +188,7 @@ class sshsetup {
     "/home/${user}/.ssh/id_rsa":
       source => "puppet:///modules/hadoop/id_rsa",
       ensure => present,
-      mode => 600,
+      mode => "600",
       owner => $user,
       group => $user,
       require => File["/home/${user}/.ssh"],
@@ -150,7 +199,7 @@ class sshsetup {
     "/home/${user}/.ssh/id_rsa.pub":
       source => "puppet:///modules/hadoop/id_rsa.pub",
       ensure => present,
-      mode => 644,
+      mode => "644",
       owner => $user,
       group => $user,
       require => File["/home/${user}/.ssh"],
@@ -161,7 +210,7 @@ class sshsetup {
     "/home/${user}/.ssh/config":
       owner => $user,
       group => $user,
-      mode => 755,
+      mode => "755",
       content => "StrictHostKeyChecking no",
       require => File["/home/${user}/.ssh/id_rsa.pub"],
       
@@ -187,17 +236,17 @@ node "master" {
   $hadoop_ver = "2.8.1"
   $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
-  $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
 
 
   include hadoop
   include sshsetup
-
+  include java
+  
   file {
     "${hadoop_dir}/etc/hadoop/slaves":
       source => "puppet:///modules/hadoop/slaves",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
       require => Exec["unpack_hadoop"],    
@@ -206,9 +255,10 @@ node "master" {
   file {
     "${hadoop_dir}/etc/hadoop/masters":
       source => "puppet:///modules/hadoop/masters",
-      mode => 644,
+      mode => "644",
       owner => root,
       group => root,
+#      content => $::ipaddress,
       require => Exec["unpack_hadoop"],    
   }
 
@@ -220,41 +270,23 @@ node "master" {
       group => $user,
   }
   
-  exec { "format_HDFS":
-    environment => ["JAVA_HOME=${jhome}"],
-    command => "hdfs namenode -format -force",
-    path => $path,
-    user => $user,
-    creates => "/opt/hdfs/name",
-    require => [File["/opt/hdfs/"],Exec["unpack_hadoop"],Package["openjdk-7-jdk"]],
-  }
-  
-  # exec { "start_dfs":
-  #   command => "start-dfs.sh",
+  # exec { "format_HDFS":
+  #   environment => ["JAVA_HOME=${java::default_java_home}"],
+  #   command => "hdfs namenode -format -force",
   #   path => $path,
   #   user => $user,
-  #   require => [Exec["format_HDFS"],Package["openjdk-7-jdk"]],
-  #   loglevel => debug,
-  #   logoutput => true, 
+  #   creates => "/opt/hdfs/name",
+  #   require => [File["/opt/hdfs/"],Exec["unpack_hadoop"],Class["java"]],
   # }
-
-  # exec { "start_yarn":
-  #   command => "start-yarn.sh",
+  
+  # exec { "populate":
+  #   command => "/home/${user}/hadoop-dfs-populate.sh",
   #   path => $path,
-  #   user => $user, 
-  #   require => [Exec["format_HDFS"],Package["openjdk-7-jdk"]],
+  #   require => [File["/home/${user}/hadoop-common.sh"],File["/home/${user}/hadoop-dfs-populate.sh"],Exec["format_HDFS"]],
+  #   user => $user,
   #   loglevel => debug,
-  #   logoutput => true,  
-  # }
-
-  exec { "populate":
-    command => "/home/${user}/hadoop-dfs-populate.sh",
-    path => $path,
-    require => [File["/home/${user}/hadoop-common.sh"],File["/home/${user}/hadoop-dfs-populate.sh"],Exec["start_dfs"]],
-    user => $user,
-    loglevel => debug,
-    logoutput => true,      
-  }      
+  #   logoutput => true,      
+  # }      
 }
 
 
@@ -267,11 +299,11 @@ node default {
   $hadoop_ver = "2.8.1"
   $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
-  $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
 
   include hadoop
   include sshsetup
+  include java
 
   file {
     "/opt/hdfs":
