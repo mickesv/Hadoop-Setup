@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export HADOOP_VER=hadoop-2.8.0
+export HADOOP_VER=hadoop-2.8.1
 export HADOOP_ROOT_ROOT=/usr/local
 export HADOOP_ROOT=$HADOOP_ROOT_ROOT/$HADOOP_VER
 export HADOOP_HOME=$HADOOP_ROOT

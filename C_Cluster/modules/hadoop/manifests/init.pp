@@ -20,8 +20,8 @@ class { "sshsetup":
 # --------------------
 class hadoop {
   $hadoop_home = "/usr/local/hadoop"
-  $hadoop_ver = "2.8.0"
-  $hadoop_dir = "/usr/local/hadoop-2.8.0"
+  $hadoop_ver = "2.8.1"
+  $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
   $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
@@ -29,7 +29,7 @@ class hadoop {
   exec { "download_hadoop":
     command => "wget -O /vagrant/hadoop.tar.gz http://www-eu.apache.org/dist/hadoop/common/hadoop-${hadoop_ver}/hadoop-${hadoop_ver}.tar.gz",
     path => $path,
-    unless => ["ls /usr/local/ | grep hadoop-2.8.0", "test -f /vagrant/hadoop.tar.gz"],
+    unless => ["ls /usr/local/ | grep hadoop-2.8.1", "test -f /vagrant/hadoop.tar.gz"],
     require => Package["openjdk-7-jdk"], 
   }
 
@@ -184,8 +184,8 @@ class sshsetup {
 
 node "master" {
   $hadoop_home = "/usr/local/hadoop"
-  $hadoop_ver = "2.8.0"
-  $hadoop_dir = "/usr/local/hadoop-2.8.0"
+  $hadoop_ver = "2.8.1"
+  $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
   $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
@@ -264,8 +264,8 @@ node "master" {
 # node /^worker\d+$/ {
 node default {
   $hadoop_home = "/usr/local/hadoop"
-  $hadoop_ver = "2.8.0"
-  $hadoop_dir = "/usr/local/hadoop-2.8.0"
+  $hadoop_ver = "2.8.1"
+  $hadoop_dir = "/usr/local/hadoop-2.8.1"
   $path = "${path}:${hadoop_dir}/sbin:${hadoop_dir}/bin"
   $jhome = "/usr/lib/jvm/java-7-openjdk-amd64"
   $user = "vagrant"
