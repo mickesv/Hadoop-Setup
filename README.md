@@ -23,3 +23,4 @@ cd /vagrant
 
 **C_Cluster** Three worker nodes and one master. Provisioned with the help of Puppet. Just `vagrant up` and everything should be fine.
 
+**D_Docker_Cluster** Work in Progress, not ready yet.
