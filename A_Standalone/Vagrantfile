@@ -70,6 +70,4 @@ Vagrant.configure("2") do |config|
       echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> /home/vagrant/.bashrc
   SHELL
 
-  config.vm.network :forwarded_port, guest: 50070, host: 50070 # NameNode web interface
-  config.vm.network :forwarded_port, guest: 8088, host: 8088   # YARN web interface  
 end
