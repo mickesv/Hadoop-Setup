@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-export HADOOP_VER=hadoop-2.8.1
+export HADOOP_VER=hadoop-3.2.1
 export HADOOP_ROOT_ROOT=/usr/local
 export HADOOP_ROOT=$HADOOP_ROOT_ROOT/$HADOOP_VER
 export HADOOP_HOME=$HADOOP_ROOT
-export HADOOP_PREFIX=$HADOOP_HOME
+# export HADOOP_PREFIX=$HADOOP_HOME
 
 export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin 
 
@@ -18,4 +18,6 @@ export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
 export HADOOP_INSTALL=$HADOOP_HOME
 
 export HADOOP_LOG_DIR=/tmp/hadoop-logs
-export YARN_LOG_DIR=/tmp/hadoop-logs
+# export YARN_LOG_DIR=/tmp/hadoop-logs
+
+export PATH=$PATH:$HADOOP_HOME/bin

@@ -17,7 +17,7 @@
 export HADOOP_YARN_USER=${HADOOP_YARN_USER:-yarn}
 
 # resolve links - $0 may be a softlink
-export YARN_CONF_DIR="${YARN_CONF_DIR:-$HADOOP_YARN_HOME/conf}"
+# export YARN_CONF_DIR="${YARN_CONF_DIR:-$HADOOP_YARN_HOME/conf}"
 
 # some Java parameters
 # export JAVA_HOME=/home/y/libexec/jdk1.6.0/
@@ -84,17 +84,18 @@ fi
 # and therefore may override any similar flags set in YARN_OPTS
 #export YARN_NODEMANAGER_OPTS=
 
+
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=
 
 
 # default log directory & file
-if [ "$YARN_LOG_DIR" = "" ]; then
-  YARN_LOG_DIR="/tmp/hadoop-logs"
-fi
-if [ "$YARN_LOGFILE" = "" ]; then
-  YARN_LOGFILE='yarn.log'
-fi
+# if [ "$YARN_LOG_DIR" = "" ]; then
+#   YARN_LOG_DIR="/tmp/hadoop-logs"
+# fi
+# if [ "$YARN_LOGFILE" = "" ]; then
+#   YARN_LOGFILE='yarn.log'
+# fi
 
 # default policy file for service-level authorization
 if [ "$YARN_POLICYFILE" = "" ]; then
