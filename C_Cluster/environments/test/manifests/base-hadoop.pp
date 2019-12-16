@@ -32,8 +32,8 @@ node "master" {
   include sshsetup
 
   file {
-    "${hadoop_dir}/etc/hadoop/slaves":
-      source => "puppet:///modules/hadoop/slaves",
+    "${hadoop_dir}/etc/hadoop/workers":
+      source => "puppet:///modules/hadoop/workers",
       mode => "644",
       owner => root,
       group => root,
